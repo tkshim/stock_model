@@ -2,7 +2,7 @@
 
 - Linear regression is used in order to predict whether tomorrow's stock price will be going up or down.
 
-- There are tree vectors
+- There are tree vectors.
   (1) The fluctuation　of high price - low price today.
   (2) The fluctuation　of today stock price - yesterday stock price.
   (3) The fluctuation　of today volume - yesterday volume.
@@ -20,4 +20,5 @@
      
   (3)apply to stock predictive model
      run entire functions and print the result(up or down, accuracy) by using 'StockPredictModel' class.
+
 EOF 
