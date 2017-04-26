@@ -10,7 +10,7 @@ import numpy as np
 def get_rawdata():
     # get html data from google
     url1 = 'https://www.google.com/finance/historical?q='
-    url2 = raw_input(' Please input Ticker symbol name : ')
+    url2 = raw_input(' Please input stock name : ')
     url3 = '&start=0&num=200'
     url = url1 + url2 + url3
     html_data = requests.get(url)
@@ -39,47 +39,42 @@ def get_rawdata():
             for td in td_data:
                 text = td.find(text=True) 
                 rawdata_list.append(text)   
-        #print 'OK,  Please continue.'   
-        #print ''
+        print 'OK,  Please continue.'   
+        print ''
         return rawdata_list
     
     else:
         print ''
         print ' Sorry ! There is no stock data.  Please try again.'
-        print ' Please check this website.'
-        print 'http://eoddata.com/symbols.aspx'
         print ''
 
 
 # create datatable table from rawdata
-# x: rawdata
+# rawdata has 1200 rows (6 vectors * 200 days )
 # n: number of row
 import csv
 
 def create_datatable(rawdata):
-    open_list=[]; high_list =[]; low_list=[]; close_list=[]; volume_list=[]
-    n =1200
     try:
-        i=1;  
-        while i<n: open_list.append(float(rawdata[i])); i +=6;
-        i=2; 
-        while i<n: high_list.append(float(rawdata[i])); i +=6
-        i=3; 
-        while i<n: low_list.append(float(rawdata[i])); i +=6
-        i=4; 
-        while i<n: close_list.append(float(rawdata[i])); i +=6
-        i=5; 
-        while i<n: volume_list.append(float(rawdata[i])); i +=6
-        
+        open_list=[]; high_list =[]; low_list=[]; close_list=[]; volume_list=[]
+        list_names = [open_list, high_list, low_list, close_list, volume_list]
+        n =1200
+        for i, item in enumerate(list_names):
+            i = i +1
+            while i < n: item.append(float(rawdata[i]));i = i + 6;
+
         stock_data_list =[]
-        stock_data_list.append(open_list)
-        stock_data_list.append(high_list) 
-        stock_data_list.append(low_list)
-        stock_data_list.append(close_list) 
-        stock_data_list.append(volume_list)
-    
+        for i in list_names:
+            stock_data_list.append(i)
         datatable_tmp = np.array(stock_data_list).astype('float')
         datatable = datatable_tmp.T
+        
+        file_write = raw_input('Would you like to save datatable ?  If Yes, please Enter or y : ')
+        if file_write == 'y' or file_write == '':
+            f = open('datatable.csv', 'w')
+            writer = csv.writer(f, lineterminator='\n')
+            writer.writerows(datatable)
+            f.close()
         
         #print 'Table shape is : ', datatable.shape
         #np.savetxt("stockdata.csv", datatable, fmt="%.09f",delimiter=",")
@@ -111,16 +106,11 @@ def create_dataset(datatable):
         a=datatable[i,1]
         b=datatable[i,2]
         c=datatable[i,3]
-        daytime_diff.append((a - b)/c)
-
-    for i in range(n):
-        c=datatable[i,3]
         d=datatable[i+1,3]
-        day_diff.append((c - d)/c)
-
-    for i in range(n):
         e=datatable[i,4]
         f=datatable[i+1,4]
+        daytime_diff.append((a - b)/c)
+        day_diff.append((c - d)/c)
         volume_diff.append((e -f)/e)
 
     feature_vector_list =[]
@@ -211,8 +201,6 @@ def cal_accuracy(answer_list, actual_list):
 
 
 # # Apply to Model
-
-
 # main #
 print ''
 print '/----------------------------------------------------------/'
@@ -225,13 +213,12 @@ while True:
     user_continue = raw_input('Would you like to continue ?  Press enter or y to continue : ')
     if user_continue == 'y' or user_continue =='':
         
-        rawdata = get_rawdata()                          # step1
+        rawdata = get_rawdata()                # step1
         datatable = create_datatable(rawdata)  # step2
-        X, Y = create_dataset(datatable)            # step3
-        model.fit(X,Y)                                             # step4
+        X, Y = create_dataset(datatable)       # step3
+        model.fit(X,Y)                         # step4
         Z = model.predict(X)
-        apply_model(X[0].reshape(1,-1))          # step5
+        apply_model(X[0].reshape(1,-1))        # step5
         cal_accuracy(Z, Y)
     else:
         break
-
