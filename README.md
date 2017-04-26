@@ -15,5 +15,5 @@
     * apply_model()       - print the result (up or down).
     * cal_accuracy()      - calculate and print this model’s accuracy.
   * apply to model
-    * run entire functions and print the result(up or down, accuracy) by using 'StockPredictModel' class.
+    * run entire functions and print the result(up or down, accuracy).
 * EOF
